@@ -1,0 +1,12 @@
+weights/
+weights.zip
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite
+*.log
+sample_frame.png
+youtube.mp4
+BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt
