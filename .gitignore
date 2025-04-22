@@ -10,3 +10,5 @@ __pycache__/
 sample_frame.png
 youtube.mp4
 BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt
+_log_slurm
+*.sh

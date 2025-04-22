@@ -132,8 +132,10 @@ class FaceDetector(torch.nn.Module):
 
         model_path = script_dir / '../../weights/yolov5m-face.pt'
         if not os.path.exists(model_path):
+            print('Downloading face detector model weights...', end=' ', flush=True)
             id = '1Sx-KEGXSxvPMS35JhzQKeRBiqC98VDDI'
             u.download_gdrive(id, model_path)
+            print('Done.', flush=True)
         self.model = load_model(model_path)
 
     def to_device(self, device):

@@ -1,21 +1,23 @@
-# Build extractors and classifier (Run once, unless session crashes)
-
 import sys
+import os
 from pathlib import Path
+
+import zipfile
 import numpy as np
 import torch
 from tqdm import tqdm
 import matplotlib
-
 import gdown
-import zipfile
-import os
-
+import argparse
+from time import time
+t0 = time()
+print('Importing libraries...', flush=True, end=' ')
 sys.path.append('src')
 import utils as u
 import models_
-import argparse
+print(f'Done.', flush=True)
 
+# print('Done.', flush=True)
 
 parser = argparse.ArgumentParser(description="Process a video for emotion classification.")
 parser.add_argument('--video_path', type=str, default=None, help="Path to the input video file.")
@@ -33,7 +35,9 @@ if video_path is None and youtube_link is None:
 elif video_path is not None and youtube_link is not None:
     print("Both file and link provided. Using the file.")
 elif youtube_link is not None:
+    print('Downloading video from YouTube...', flush=True, end=' ')
     video_path = u.download_yt(youtube_link, target_dir='sample_data', size=size)
+    print('Done.', flush=True)
 
 
 # Check if weights folder exists, if not, create it
@@ -41,7 +45,7 @@ weights_folder = Path('weights')
 if not weights_folder.exists():
     # Download weights
     weights_url = 'https://drive.google.com/uc?id=1uvFdB55W7vTYlfsTsK4VhZkB4vCYStf_&export=download'
-
+    print('Downloading weights...', flush=True, end=' ')
     gdown.download(weights_url, 'weights.zip', quiet=False)
 
     # Unzip the downloaded file
@@ -50,6 +54,7 @@ if not weights_folder.exists():
 
     # Delete the zip file
     os.remove('weights.zip')
+    print('Done.', flush=True)
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -63,7 +68,7 @@ labels = ('anger', 'disgust', 'fear', 'joy', 'sadness', 'surprise')
 model_dir = Path('weights/classifier')
 config = torch.load(model_dir / 'model_config.pt')
 
-print('Loading model...')
+print('Loading model...', flush=True)
 # Load model
 classifier = models_.AttentionClassifier(
         feature_dims=config['feature_dims'],
@@ -76,7 +81,7 @@ classifier = models_.AttentionClassifier(
 weights = torch.load(model_dir / 'model.pt', map_location=lambda storage, loc: storage)
 classifier.load_state_dict(weights)
 del weights
-print(f"Checkpoint loaded from {model_dir}/model.pt", flush=True)
+print(f"Model loaded from {model_dir}/model.pt", flush=True)
 classifier = classifier.to(device)
 classifier.eval()
 
@@ -84,7 +89,7 @@ feature_names = config['features']
 
 n_frames = config['n_frames']
 
-stats = torch.load('weights/stats.pt')
+stats = torch.load('stats.pt')
 
 extractors = {}
 # extractors['face_emotion'] = models_.FaceExtractAndClassify()

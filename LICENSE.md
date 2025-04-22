@@ -18,11 +18,14 @@ Portugal
 
 If needed SAL (INESC TEC Technology Licensing Office - TLO) can assist with all the legal details regarding the licensing agreement.
 
-If you use the Video emotion classifier in a work that leads to a scientific publication, we would appreciate it if you would kindly cite Video emotion classifier in your manuscript.
+If you use the Video Emotion Classifier in a work that leads to a scientific publication, we would appreciate it if you would kindly cite Video Emotion Classifier in your manuscript.
 
 S. Sulun, P. Viana, and M. E. P. Davies, “Movie trailer genre classification using multimodal pretrained features,” Expert Systems with Applications, p. 125209, 2024, doi: 10.1016/j.eswa.2024.125209.
 
-The paper can be found at https://www.sciencedirect.com/science/article/pii/S0957417424020761
+S. Sulun, P. Viana, and M. E. P. Davies, “VEMOCLAP: A video emotion classification web application,” Oct. 22, 2024, arXiv: arXiv:2410.21303. doi: 10.48550/arXiv.2410.21303.
+
+
+The papers can be found at https://www.sciencedirect.com/science/article/pii/S0957417424020761 and http://arxiv.org/abs/2410.21303
 
 
 

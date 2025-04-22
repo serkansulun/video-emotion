@@ -8,13 +8,13 @@ Install required Python libraries using:
 
 `pip install -r files/requirements.txt`
 
-You can classify your own videos by providing the path:
+You can classify your own videos by providing the path as the following. Inside the folder `sample_data`, there are sample videos from the Ekman-6 dataset.
 
 `python video_emotion_classifier.py --video_path sample_data/fear.mp4`
 
 You can also provide YouTube links:
 
-`python video_emotion_classifier.py --youtube_link sample_data/fear.mp4`
+`python video_emotion_classifier.py --youtube_link "https://www.youtube.com/watch?v=3YaRvbQSjrk"`
 
 The following additional results are also shown: Automatic Speech Recognition (ASR), audio event classification (BEATs), image captioning (CLIP), face detection and emotion classification, Optical Character Recognition (OCR).
 
