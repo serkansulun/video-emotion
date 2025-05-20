@@ -1,5 +1,3 @@
-weights/
-weights.zip
 __pycache__/
 *.pyc
 *.pyo
@@ -12,3 +10,5 @@ youtube.mp4
 BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt
 _log_slurm
 *.sh
+conceptual_weights.pt
+yolov5m-face.pt
