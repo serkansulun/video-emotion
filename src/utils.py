@@ -219,10 +219,12 @@ def extract_frames_and_audio(video_path, output_fps=None, size=None):
     return video_array, audio_array, original_fps, audio_sample_rate
 
 def download_gdrive(id, target_path):
+    target_path = str(target_path)
     url = f'https://drive.google.com/uc?id={id}&export=download'
     gdown.download(url, target_path, quiet=False)
 
 def download_yt(url, target_dir, size=None):
+    target_dir = str(target_dir)
     # Ensure the target directory exists
     os.makedirs(target_dir, exist_ok=True)
 

@@ -40,21 +40,21 @@ elif youtube_link is not None:
     print('Done.', flush=True)
 
 
-# Check if weights folder exists, if not, create it
-weights_folder = Path('weights')
-if not weights_folder.exists():
-    # Download weights
-    weights_url = 'https://drive.google.com/uc?id=1uvFdB55W7vTYlfsTsK4VhZkB4vCYStf_&export=download'
-    print('Downloading weights...', flush=True, end=' ')
-    gdown.download(weights_url, 'weights.zip', quiet=False)
+# # Check if weights folder exists, if not, create it
+# weights_folder = Path('weights')
+# if not weights_folder.exists():
+#     # Download weights
+#     weights_url = 'https://drive.google.com/uc?id=1uvFdB55W7vTYlfsTsK4VhZkB4vCYStf_&export=download'
+#     print('Downloading weights...', flush=True, end=' ')
+#     gdown.download(weights_url, 'weights.zip', quiet=False)
 
-    # Unzip the downloaded file
-    with zipfile.ZipFile('weights.zip', 'r') as zip_ref:
-        zip_ref.extractall('.')
+#     # Unzip the downloaded file
+#     with zipfile.ZipFile('weights.zip', 'r') as zip_ref:
+#         zip_ref.extractall('.')
 
-    # Delete the zip file
-    os.remove('weights.zip')
-    print('Done.', flush=True)
+#     # Delete the zip file
+#     os.remove('weights.zip')
+#     print('Done.', flush=True)
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
