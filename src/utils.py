@@ -38,11 +38,10 @@ def wrap_text(text, linewidth):
     return "\n".join(lines)
 
 
-# def create_dropdown(options, description='Option:'):
-  
-#     dropdown = widgets.Dropdown(options=options, description=description, description_width=700)
-#     display(dropdown)
-#     return dropdown
+def create_dropdown(options, description='Option:'):
+    dropdown = widgets.Dropdown(options=options, description=description, description_width=700)
+    display(dropdown)
+    return dropdown
 
 
 def draw_boxes_on_image(image, shapes, labels=None, output_file=None, title=None):

@@ -758,6 +758,7 @@ class OCRRunner:
             use_angle_cls=False, 
             lang='en', 
             use_gpu=torch.cuda.is_available(),
+            rec_batch_num=1,
             )
 
     def get_device(self):
