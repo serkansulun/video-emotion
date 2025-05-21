@@ -66,7 +66,7 @@ visualize = True    # Visualize intermediate results
 labels = ('anger', 'disgust', 'fear', 'joy', 'sadness', 'surprise')
 
 model_dir = Path('weights/classifier')
-config = torch.load(model_dir / 'model_config.pt')
+config = torch.load(model_dir / 'model_config.pt', weights_only=False)
 
 print('Loading model...', flush=True)
 # Load model
@@ -78,7 +78,7 @@ classifier = models_.AttentionClassifier(
         dropout=config['dropout'],
         )
 
-weights = torch.load(model_dir / 'model.pt', map_location=lambda storage, loc: storage)
+weights = torch.load(model_dir / 'model.pt', weights_only=True, map_location=lambda storage, loc: storage)
 classifier.load_state_dict(weights)
 del weights
 print(f"Model loaded from {model_dir}/model.pt", flush=True)
@@ -89,7 +89,7 @@ feature_names = config['features']
 
 n_frames = config['n_frames']
 
-stats = torch.load('stats.pt')
+stats = torch.load('stats.pt', weights_only=False)
 
 extractors = {}
 # extractors['face_emotion'] = models_.FaceExtractAndClassify()

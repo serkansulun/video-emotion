@@ -488,7 +488,7 @@ class CaptionRunner(torch.nn.Module):
         model_path = Path('weights/conceptual_weights.pt')
         if not model_path.exists():
             u.download_gdrive('14pXWwB4Zm82rsDdvbGguLfx9F8aM7ovT', model_path)
-        self.caption_model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')), strict=False) 
+        self.caption_model.load_state_dict(torch.load(model_path, weights_only=True, map_location=torch.device('cpu')), strict=False) 
         self.caption_model.eval()
         self.caption_tokenizer = transformers.GPT2Tokenizer.from_pretrained("gpt2")
 

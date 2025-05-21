@@ -13,7 +13,7 @@ sys.path.append('./')  # to run '$ python *.py' files in subdirectories
 port = 0  # --master_port
 path = Path('').resolve()
 for last in path.rglob('*/**/last.pt'):
-    ckpt = torch.load(last)
+    ckpt = torch.load(last, weights_only=False)
     if ckpt['optimizer'] is None:
         continue
 
