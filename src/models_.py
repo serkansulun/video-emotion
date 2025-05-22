@@ -12,10 +12,6 @@ import json
 import transformers
 from pathlib import Path
 from face_detector.detect_face import FaceDetector
-from paddleocr import PaddleOCR
-import pkg_resources
-from symspellpy.symspellpy import SymSpell
-import surya
 from PIL import Image
 from surya.recognition import RecognitionPredictor
 from surya.detection import DetectionPredictor
@@ -685,31 +681,6 @@ class ToEnglishTranslator(torch.nn.Module):
         else:
             return text
 
-class SpellChecker(torch.nn.Module):
-    # Spellchecker, corrector
-    # Source: https://huggingface.co/ai-forever/T5-large-spell
-    def __init__(self):
-        super(SpellChecker, self).__init__()
-        path_to_model = "ai-forever/T5-large-spell"
-        self.model = transformers.T5ForConditionalGeneration.from_pretrained(path_to_model)
-        self.model.eval()
-        self.tokenizer = transformers.AutoTokenizer.from_pretrained(path_to_model)
-        self.prefix = "grammar: "
-
-    def __call__(self, texts):
-        with torch.no_grad():
-            single_input = isinstance(texts, str)
-            if single_input:
-                texts = [texts]
-            texts = [self.prefix + text for text in texts]
-            encodings = self.tokenizer(texts, return_tensors="pt", padding=True)
-            device = get_device(self)
-            encodings = encodings.to(device)
-            generated_tokens = self.model.generate(**encodings, max_length=512)
-            output = self.tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
-            if single_input:
-                output = output[0]
-            return output
 
 
 class TextLanguageClassifier(torch.nn.Module):
@@ -752,8 +723,9 @@ class TextLanguageClassifier(torch.nn.Module):
             return output
 
 
-class SuryaOCRRunner:
+class OCRRunner:
     # Wrapper for optical Character Recognition (OCR) model to process full videos.
+    # https://github.com/VikParuchuri/surya
 
     def __init__(self, threshold=0.75):
         self.threshold = threshold
@@ -809,59 +781,6 @@ class SuryaOCRRunner:
         return video_texts, video_outputs
 
 
-class PaddleOCRRunner:
-    # Wrapper for optical Character Recognition (OCR) model to process full videos.
-    # Source: https://github.com/PaddlePaddle/PaddleOCR
-    def __init__(self, threshold=0.75):
-        
-        self.threshold = threshold
-        self.model = PaddleOCR(
-            show_log=False, 
-            use_angle_cls=False, 
-            lang='en', 
-            use_gpu=torch.cuda.is_available(),
-            rec_batch_num=1,
-            )
-
-    def get_device(self):
-        return DEVICE
-
-    def __call__(self, img_path, **kwargs):
-        with torch.no_grad():
-            output = self.model.ocr(img_path, cls=True)[0]
-            if output == None:
-                text = ''
-            else:
-                text = " ".join([line[1][0] for line in output if line[1][1] > self.threshold])
-                text = text.lower()
-                output = [box for box in output if box[1][1] > self.threshold]
-            
-            return text, output
-
-    def process_video(self, input_frames=None, video_path=None, fps=None, use_scenecuts=False, n_frames=None):
-        if input_frames is None and video_path == None:
-            raise ValueError('You should provide either input frames or video path.')
-        elif input_frames is None:
-            if use_scenecuts:
-                input_frames, _ = u.video_to_midscenes(video_path)  # Get scenes  
-            else:
-                input_frames, input_fps = u.extract_frames(str(video_path), output_fps=fps)
-            
-            if n_frames != None:
-                indices = u.equidistant_indices(input_frames.shape[0], n_frames)
-                input_frames = input_frames[indices, ...]
-
-        video_texts = []
-        video_outputs = []
-
-        for frame in input_frames: 
-            frame_text, frame_output = self.__call__(frame)
-            video_texts.append(frame_text)
-            video_outputs.append(frame_output)
-
-        return video_texts, video_outputs
-    
-
 class OCRPipeline(torch.nn.Module):
     ''' Pipeline:
     Predict language
@@ -878,10 +797,8 @@ class OCRPipeline(torch.nn.Module):
     def __init__(self, verbose=False):
         super(OCRPipeline, self).__init__()
         self.verbose = verbose
-        self.ocr_model = SuryaOCRRunner()
+        self.ocr_model = OCRRunner()
         self.language_classifier = TextLanguageClassifier()
-        # self.segmentor = TextSegmentor()
-        # self.spellchecker = SpellChecker()
         self.translator = ToEnglishTranslator()
         self.sentiment_classifier = SentimentClassifier()
 
@@ -924,23 +841,6 @@ class OCRPipeline(torch.nn.Module):
                  
         return output
 
-
-class TextSegmentor:
-    # Segments text into word.
-    # Useful when OCR model misses the spaces.
-    # Source: https://pypi.org/project/symspellpy/
-    def __init__(self):
-        self.model = SymSpell(max_dictionary_edit_distance=0, prefix_length=7)
-        dictionary_path = pkg_resources.resource_filename(
-                "symspellpy", "frequency_dictionary_en_82_765.txt"
-            )
-        self.model.load_dictionary(dictionary_path, term_index=0, count_index=1)
-    def __call__(self, text):
-        if text in ('-', ''):
-            return text
-        else:
-            output = self.model.word_segmentation(text).corrected_string
-            return output
 
 
 '''Emotion classifier:
