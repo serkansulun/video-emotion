@@ -758,7 +758,9 @@ class SuryaOCRRunner:
     def __init__(self, threshold=0.75):
         self.threshold = threshold
         self.recognition_predictor = RecognitionPredictor(device=DEVICE)
+        self.recognition_predictor.disable_tqdm = True
         self.detection_predictor = DetectionPredictor(device=DEVICE)
+        self.detection_predictor.disable_tqdm = True
 
     def get_device(self):
         return DEVICE
@@ -773,7 +775,7 @@ class SuryaOCRRunner:
             images = [images]  # Convert single image to list
 
         with torch.no_grad():
-            predictions = self.recognition_predictor(images, det_predictor=self.detection_predictor)
+            predictions = self.recognition_predictor(images, det_predictor=self.detection_predictor, math_mode=False)
             if predictions == None:
                 text = ''
             else:
@@ -1013,3 +1015,4 @@ class AttentionClassifier(torch.nn.Module):
         x = self.cls_mlp(x)
         
         return x
+    
