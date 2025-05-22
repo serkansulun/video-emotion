@@ -22,6 +22,7 @@ print(f'Done.', flush=True)
 parser = argparse.ArgumentParser(description="Process a video for emotion classification.")
 parser.add_argument('--video_path', type=str, default=None, help="Path to the input video file.")
 parser.add_argument('--youtube_link', type=str, default=None, help="YouTube link of the video.")
+parser.add_argument('--debug', action='store_true', help="Enable debug mode.")
 args = parser.parse_args()
 
 video_path = args.video_path

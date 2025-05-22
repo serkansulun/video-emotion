@@ -15,6 +15,10 @@ from face_detector.detect_face import FaceDetector
 from paddleocr import PaddleOCR
 import pkg_resources
 from symspellpy.symspellpy import SymSpell
+import surya
+from PIL import Image
+from surya.recognition import RecognitionPredictor
+from surya.detection import DetectionPredictor
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -135,6 +139,7 @@ class FaceEmotionClassifier(torch.nn.Module):
         from PIL import Image
         import matplotlib.pyplot as plt
         import numpy as np
+        from PIL import Image
 
         url = "https://img.freepik.com/premium-photo/3d-rendered-illustration-angry-man-face_181203-19310.jpg"
         image = Image.open(requests.get(url, stream=True).raw)
@@ -747,7 +752,62 @@ class TextLanguageClassifier(torch.nn.Module):
             return output
 
 
-class OCRRunner:
+class SuryaOCRRunner:
+    # Wrapper for optical Character Recognition (OCR) model to process full videos.
+
+    def __init__(self, threshold=0.75):
+        self.threshold = threshold
+        self.recognition_predictor = RecognitionPredictor(device=DEVICE)
+        self.detection_predictor = DetectionPredictor(device=DEVICE)
+
+    def get_device(self):
+        return DEVICE
+
+    def __call__(self, images, **kwargs):
+        if isinstance(images, np.ndarray):
+            if len(images.shape) == 4:
+                images = [Image.fromarray(images[i]) for i in range(images.shape[0])]  # Convert each frame to PIL Image
+            else:
+                images = [Image.fromarray(images)]  # Convert single image to PIL Image
+        if not isinstance(images, list):
+            images = [images]  # Convert single image to list
+
+        with torch.no_grad():
+            predictions = self.recognition_predictor(images, det_predictor=self.detection_predictor)
+            if predictions == None:
+                text = ''
+            else:
+                output = [[line.polygon, (line.text, line.confidence)] for prediction in predictions for line in prediction.text_lines]
+                text = " ".join([line[1][0] for line in output])
+                text = text.lower()
+                text = text.replace('<b>', '').replace('</b>', '')
+            return text, output
+
+    def process_video(self, input_frames=None, video_path=None, fps=None, use_scenecuts=False, n_frames=None):
+        if input_frames is None and video_path == None:
+            raise ValueError('You should provide either input frames or video path.')
+        elif input_frames is None:
+            if use_scenecuts:
+                input_frames, _ = u.video_to_midscenes(video_path)  # Get scenes  
+            else:
+                input_frames, input_fps = u.extract_frames(str(video_path), output_fps=fps)
+            
+            if n_frames != None:
+                indices = u.equidistant_indices(input_frames.shape[0], n_frames)
+                input_frames = input_frames[indices, ...]
+
+        video_texts = []
+        video_outputs = []
+
+        for frame in input_frames: 
+            frame_text, frame_output = self.__call__(frame)
+            video_texts.append(frame_text)
+            video_outputs.append(frame_output)
+
+        return video_texts, video_outputs
+
+
+class PaddleOCRRunner:
     # Wrapper for optical Character Recognition (OCR) model to process full videos.
     # Source: https://github.com/PaddlePaddle/PaddleOCR
     def __init__(self, threshold=0.75):
@@ -816,10 +876,10 @@ class OCRPipeline(torch.nn.Module):
     def __init__(self, verbose=False):
         super(OCRPipeline, self).__init__()
         self.verbose = verbose
-        self.ocr_model = OCRRunner()
+        self.ocr_model = SuryaOCRRunner()
         self.language_classifier = TextLanguageClassifier()
-        self.segmentor = TextSegmentor()
-        self.spellchecker = SpellChecker()
+        # self.segmentor = TextSegmentor()
+        # self.spellchecker = SpellChecker()
         self.translator = ToEnglishTranslator()
         self.sentiment_classifier = SentimentClassifier()
 
@@ -848,12 +908,10 @@ class OCRPipeline(torch.nn.Module):
             processed_texts = []
             for i in range(len(unique_texts)):
                 if languages[i] in ('english', 'unknown'):
-                    segmented = self.segmentor(unique_texts[i])
-                    corrected = self.spellchecker(segmented)
-                    processed_texts.append(corrected)
+                    text = unique_texts[i]
                 else:
-                    translated = self.translator(unique_texts[i], languages[i])
-                    processed_texts.append(translated)
+                    text = self.translator(unique_texts[i], languages[i])
+                processed_texts.append(text)
 
             processed_texts = list(dict.fromkeys(processed_texts))
             output['ocr_processed'] = processed_texts
