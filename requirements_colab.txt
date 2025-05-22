@@ -1,4 +1,8 @@
--r torch.txt
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch==2.7.0+cu118
+torchaudio==2.7.0+cu118
+torchvision==0.22.0+cu118
+
 clip @ git+https://github.com/openai/CLIP.git@d50d76daa670286dd6cacf3bcd80b5e4823fc8e1
 ffmpeg-python==0.2.0
 surya-ocr==0.14.2
