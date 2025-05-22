@@ -2,6 +2,7 @@ clip @ git+https://github.com/openai/CLIP.git@d50d76daa670286dd6cacf3bcd80b5e482
 ffmpeg-python==0.2.0
 paddleocr==2.8.1
 paddlepaddle-gpu==2.6.1
+surya-ocr==0.14.2
 symspellpy==6.7.7
 thop==0.1.1.post2209072238
 yt_dlp==2024.10.07
