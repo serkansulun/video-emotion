@@ -13,6 +13,7 @@ import transformers
 from pathlib import Path
 from face_detector.detect_face import FaceDetector
 from PIL import Image
+from surya.foundation import FoundationPredictor
 from surya.recognition import RecognitionPredictor
 from surya.detection import DetectionPredictor
 
@@ -729,10 +730,13 @@ class OCRRunner:
 
     def __init__(self, threshold=0.75):
         self.threshold = threshold
-        self.recognition_predictor = RecognitionPredictor(device=DEVICE)
+        self.foundation_predictor = FoundationPredictor()
+        self.recognition_predictor = RecognitionPredictor(self.foundation_predictor)
+        self.detection_predictor = DetectionPredictor()
         self.recognition_predictor.disable_tqdm = True
-        self.detection_predictor = DetectionPredictor(device=DEVICE)
         self.detection_predictor.disable_tqdm = True
+        self.foundation_predictor.disable_tqdm = True
+
 
     def get_device(self):
         return DEVICE

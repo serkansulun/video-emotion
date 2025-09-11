@@ -13,3 +13,4 @@ _log_slurm
 *.sh
 conceptual_weights.pt
 yolov5m-face.pt
+test_ocr.py
