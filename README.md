@@ -18,6 +18,8 @@ You can also provide YouTube links:
 
 The following additional results are also shown: Automatic Speech Recognition (ASR), audio event classification (BEATs), image captioning (CLIP), face detection and emotion classification, Optical Character Recognition (OCR).
 
+The raw videos and the pretrained features for the Ekman-6 dataset is available on [Zenodo](https://zenodo.org/records/17159328)
+
 Also see our [Trailer Genre Classifier](https://github.com/serkansulun/trailer-genre-classification).
 
 Our paper is [available](https://arxiv.org/pdf/2410.21303).
